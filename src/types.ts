@@ -1,39 +1,51 @@
-type Error = {
-  type: string;
-  node: { id: string; name: string; type: string };
-  message: string;
-};
-export type Results = {
-  avoidBooleanOperation: Error[];
-  avoidGroup: Error[];
-  mustBeNamed: Error[];
-  mustUseAutolayout: Error[];
-  padding: Error[];
-  gap: Error[];
-  fill: Error[];
-  stroke: Error[];
-  cornerRadius: Error[];
-  overrides: Error[];
-};
-export type Settings = {
-  avoidBooleanOperation: boolean;
-  avoidGroup: boolean;
-  mustBeNamed: boolean;
-  mustUseAutolayout: boolean;
-  padding: boolean;
-  gap: boolean;
-  fill: boolean;
-  stroke: boolean;
-  cornerRadius: boolean;
-  overrides: boolean;
+import { EventHandler } from '@create-figma-plugin/utilities';
+
+export interface InsertCodeHandler extends EventHandler {
+  name: 'INSERT_CODE';
+  handler: (code: string) => void;
+}
+
+export type VariableCollectionSummary = {
+  id: string;
+  name: string;
+  modeCount: number;
 };
 
-export type Node =
-  | FrameNode
-  | ComponentNode
-  | InstanceNode
-  | TextNode
-  | GroupNode
-  | VectorNode
-  | ComponentSetNode
-  | BooleanOperationNode;
+export interface LoadCollectionsHandler extends EventHandler {
+  name: 'LOAD_COLLECTIONS';
+  handler: () => void;
+}
+
+export interface SetCollectionsHandler extends EventHandler {
+  name: 'SET_COLLECTIONS';
+  handler: (collections: Array<VariableCollectionSummary>) => void;
+}
+
+export interface ExportCollectionsHandler extends EventHandler {
+  name: 'EXPORT_COLLECTIONS';
+  handler: (selectedCollections: string[]) => void;
+}
+
+export interface DownloadFilesHandler extends EventHandler {
+  name: 'DOWNLOAD_FILES';
+  handler: (files: Array<{ filename: string; content: string }>) => void;
+}
+
+// DTCG Format Types
+export interface DTCGToken {
+  $type: string;
+  $value: string | number | object;
+  $description?: string;
+  $extensions?: Record<string, any>;
+}
+
+export interface DTCGGroup {
+  [key: string]: DTCGToken | DTCGGroup;
+}
+
+export interface DTCGCollection {
+  $schema: string;
+  $name: string;
+  $description?: string;
+  $tokens: DTCGGroup;
+}
