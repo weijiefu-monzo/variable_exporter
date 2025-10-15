@@ -18,7 +18,7 @@ export default async function () {
     exportCollections(selectedArray as string[]);
   });
 
-  showUI({ height: 320, width: 320 }, { collections });
+  showUI({ height: 480, width: 320 }, { collections });
 }
 
 const getLocalVariableCollectionsSummary = async (): Promise<

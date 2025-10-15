@@ -1,11 +1,13 @@
-import * as React from 'react';
+import { h } from 'preact';
+import { useState, useEffect } from 'preact/hooks';
 import './react-bridge'; // Must be first to set up React bridge
 import { render } from '@create-figma-plugin/ui';
 import { emit, on } from '@create-figma-plugin/utilities';
-import { h, RefObject } from 'preact';
+import styles from './styles.css';
 import '@object-ui/components/styles/primitive.css';
 import '@object-ui/components/styles/semantic.css';
 import '@object-ui/components/styles/index.css';
+import cover from './assets/cover.svg';
 import {
   Button,
   Page,
@@ -14,14 +16,14 @@ import {
   Group,
 } from '@object-ui/components';
 import { VariableCollectionSummary, DownloadFilesHandler } from './types';
-import styles from './styles.css';
 
-import { AiFillBulb } from 'react-icons/ai';
+import { AiFillBulb, AiFillPlayCircle } from 'react-icons/ai';
+import FaultyTerminal from './components/FaultyTerminal';
 
 function Plugin({ collections }: { collections: VariableCollectionSummary[] }) {
-  const [selectedCollections, setSelectedCollections] = React.useState<
-    Set<string>
-  >(new Set(collections.map((c) => c.id)));
+  const [selectedCollections, setSelectedCollections] = useState<Set<string>>(
+    new Set(collections.map((c) => c.id))
+  );
 
   const handleCollectionToggle = (collectionId: string) => {
     setSelectedCollections((prev) => {
@@ -54,7 +56,7 @@ function Plugin({ collections }: { collections: VariableCollectionSummary[] }) {
     console.log(`Download triggered for: ${filename}`);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleDownloadFiles = async (
       files: Array<{ filename: string; content: string }>
     ) => {
@@ -89,7 +91,20 @@ function Plugin({ collections }: { collections: VariableCollectionSummary[] }) {
 
   return (
     <Page>
-      <h1>Select collections to export</h1>
+      <div className={styles.cover}>
+        <img
+          src={cover}
+          alt="Variable Exporter"
+          className={styles.coverImage}
+        />
+        <div className={styles.faultyTerminal}>
+          <FaultyTerminal />
+        </div>
+      </div>
+      <div className={styles.content}>
+        <h1>TOKEN EXPORTER</h1>
+        <p>Select collections to export</p>
+      </div>
       <div className={styles.collections}>
         {collections.map((collection) => (
           <Checkbox
@@ -109,6 +124,8 @@ function Plugin({ collections }: { collections: VariableCollectionSummary[] }) {
           fullWidth
           size="large"
           color="primary"
+          startIcon={<AiFillPlayCircle />}
+          signal="success"
           onClick={() => {
             emit('EXPORT_COLLECTIONS', Array.from(selectedCollections));
           }}
