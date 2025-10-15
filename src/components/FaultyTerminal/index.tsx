@@ -194,7 +194,7 @@ vec3 getColor(vec2 p){
                 digit(p + vec2(-off, 0.0)) + digit(p + vec2(0.0, 0.0)) + digit(p + vec2(off, 0.0)) +
                 digit(p + vec2(-off, off)) + digit(p + vec2(0.0, off)) + digit(p + vec2(off, off));
     
-    vec3 baseColor = vec3(0.9) * middle + sum * 0.1 * vec3(1.0) * bar;
+    vec3 baseColor = vec3(0.5) * middle + sum * 0.1 * vec3(1.0) * bar;
     return baseColor;
 }
 
@@ -238,7 +238,7 @@ void main() {
 
     if(uDither > 0.0){
       float rnd = hash21(gl_FragCoord.xy);
-      col += (rnd - 0.5) * (uDither * 0.003922);
+      col += (rnd - 0.9) * (uDither * 0.003922);
     }
 
     gl_FragColor = vec4(col, 1.0);
@@ -261,7 +261,7 @@ function hexToRgb(hex: string): [number, number, number] {
 }
 
 export default function FaultyTerminal({
-  scale = 0.5,
+  scale = 0.3,
   gridMul = [2, 1],
   digitSize = 1.5,
   timeScale = 0.3,
@@ -273,7 +273,7 @@ export default function FaultyTerminal({
   chromaticAberration = 0,
   dither = 0,
   curvature = 0.2,
-  tint = '#ffffff',
+  tint = '#61b3dc',
   mouseReact = true,
   mouseStrength = 0.2,
   dpr = Math.min(window.devicePixelRatio || 1, 2),
@@ -316,7 +316,6 @@ export default function FaultyTerminal({
     const renderer = new Renderer({ dpr });
     rendererRef.current = renderer;
     const gl = renderer.gl;
-    gl.clearColor(17 / 255, 34 / 255, 49 / 255, 1);
 
     const geometry = new Triangle(gl);
 
