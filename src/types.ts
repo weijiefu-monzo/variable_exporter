@@ -34,7 +34,8 @@ export interface DownloadFilesHandler extends EventHandler {
 // DTCG Format Types
 export interface DTCGToken {
   $type: string;
-  $value: string | number | object;
+  $value?: string | number | object;
+  $modes?: Record<string, string | number | object>;
   $description?: string;
   $extensions?: Record<string, any>;
 }
@@ -47,5 +48,6 @@ export interface DTCGCollection {
   $schema: string;
   $name: string;
   $description?: string;
+  $modes?: Record<string, any>;
   $tokens: DTCGGroup;
 }
