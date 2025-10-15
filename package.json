@@ -4,6 +4,7 @@
     "@create-figma-plugin/utilities": "^4.0.3",
     "@object-ui/components": "file:../object-ui-package",
     "clsx": "^2.1.1",
+    "jszip": "^3.10.1",
     "ogl": "^1.0.11",
     "preact": "^10.27.2",
     "prismjs": "1.29.0",

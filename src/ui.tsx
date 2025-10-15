@@ -19,6 +19,8 @@ import { VariableCollectionSummary, DownloadFilesHandler } from './types';
 
 import { AiFillBulb, AiFillPlayCircle } from 'react-icons/ai';
 import FaultyTerminal from './components/FaultyTerminal';
+import JSZip from 'jszip';
+import { ZipPayload } from './types';
 
 function Plugin({ collections }: { collections: VariableCollectionSummary[] }) {
   const [selectedCollections, setSelectedCollections] = useState<Set<string>>(
@@ -57,32 +59,29 @@ function Plugin({ collections }: { collections: VariableCollectionSummary[] }) {
   };
 
   useEffect(() => {
-    const handleDownloadFiles = async (
-      files: Array<{ filename: string; content: string }>
-    ) => {
-      console.log(
-        `Received ${files.length} files to download:`,
-        files.map((f) => f.filename)
-      );
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        console.log(
-          `Processing file ${i + 1}/${files.length}: ${file.filename}`
-        );
-        downloadFile(file.content, file.filename);
-
-        // Add a small delay between downloads to prevent browser blocking
-        if (i < files.length - 1) {
-          console.log('Waiting 100ms before next download...');
-          await new Promise((resolve) => setTimeout(resolve, 100));
+    const handleDownloadZip = async ({ files, zipName }: ZipPayload) => {
+      try {
+        const zip = new JSZip();
+        for (const { filename, content } of files) {
+          // content is JSON string; if you ever send binary, pass an ArrayBuffer/Uint8Array instead
+          zip.file(filename, content);
         }
-      }
+        const blob = await zip.generateAsync({ type: 'blob' });
 
-      console.log('All downloads completed');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = zipName || 'tokens.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error('Failed to create ZIP', err);
+      }
     };
 
-    on('DOWNLOAD_FILES', handleDownloadFiles);
+    on('DOWNLOAD_ZIP', handleDownloadZip);
 
     return () => {
       // Cleanup listeners if needed

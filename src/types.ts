@@ -51,3 +51,8 @@ export interface DTCGCollection {
   $modes?: Record<string, any>;
   $tokens: DTCGGroup;
 }
+
+export type ZipPayload = {
+  zipName: string; // e.g. "tokens-1699999999999.zip"
+  files: Array<{ filename: string; content: string }>;
+};
