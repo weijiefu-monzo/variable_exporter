@@ -327,10 +327,11 @@ const getVariableValueForMode = (
         // Find the referenced variable and return its name instead of ID
         const referencedVariable = allVariables.find((v) => v.id === value.id);
         if (referencedVariable) {
+          const convertedName = referencedVariable.name.replace(/\//g, '.');
           console.log(
-            `Resolved variable reference: ${value.id} -> ${referencedVariable.name}`
+            `Resolved variable reference: ${value.id} -> ${convertedName}`
           );
-          return `{${referencedVariable.name}}`;
+          return `{${convertedName}}`;
         }
         console.warn(`Could not find referenced variable with ID: ${value.id}`);
         return `{${value.id}}`;
