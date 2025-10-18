@@ -4,9 +4,10 @@ import './react-bridge'; // Must be first to set up React bridge
 import { render } from '@create-figma-plugin/ui';
 import { emit, on } from '@create-figma-plugin/utilities';
 import styles from './styles.css';
-import '@object-ui/components/styles/primitive.css';
-import '@object-ui/components/styles/semantic.css';
-import '@object-ui/components/styles/index.css';
+// Import object-ui styles
+import '@object-ui/components/dist/styles/primitive.css';
+import '@object-ui/components/dist/styles/semantic.css';
+import '@object-ui/components/dist/styles/index.css';
 import cover from './assets/cover.svg';
 import {
   Button,
