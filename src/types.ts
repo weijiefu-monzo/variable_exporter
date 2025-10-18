@@ -31,6 +31,11 @@ export interface DownloadFilesHandler extends EventHandler {
   handler: (files: Array<{ filename: string; content: string }>) => void;
 }
 
+export interface DownloadZipHandler extends EventHandler {
+  name: 'DOWNLOAD_ZIP';
+  handler: (payload: ZipPayload) => void;
+}
+
 // DTCG Format Types
 export interface DTCGToken {
   $type: string;

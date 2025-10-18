@@ -4,23 +4,16 @@ import './react-bridge'; // Must be first to set up React bridge
 import { render } from '@create-figma-plugin/ui';
 import { emit, on } from '@create-figma-plugin/utilities';
 import styles from './styles.css';
-import '@object-ui/components/styles/primitive.css';
-import '@object-ui/components/styles/semantic.css';
-import '@object-ui/components/styles/index.css';
 import cover from './assets/cover.svg';
 import {
-  Button,
-  Page,
-  Checkbox,
-  IconButton,
-  Group,
-} from '@object-ui/components';
-import { VariableCollectionSummary, DownloadFilesHandler } from './types';
+  VariableCollectionSummary,
+  DownloadFilesHandler,
+  ZipPayload,
+} from './types';
 
 import { AiFillBulb, AiFillPlayCircle } from 'react-icons/ai';
 import FaultyTerminal from './components/FaultyTerminal';
 import JSZip from 'jszip';
-import { ZipPayload } from './types';
 
 function Plugin({ collections }: { collections: VariableCollectionSummary[] }) {
   const [selectedCollections, setSelectedCollections] = useState<Set<string>>(
@@ -89,7 +82,7 @@ function Plugin({ collections }: { collections: VariableCollectionSummary[] }) {
   }, []);
 
   return (
-    <Page>
+    <div className={styles.page}>
       <div className={styles.cover}>
         <img
           src={cover}
@@ -106,33 +99,33 @@ function Plugin({ collections }: { collections: VariableCollectionSummary[] }) {
       </div>
       <div className={styles.collections}>
         {collections.map((collection) => (
-          <Checkbox
-            key={collection.id}
-            id={collection.id}
-            label={`${collection.name} (${collection.modeCount} modes)`}
-            checked={selectedCollections.has(collection.id)}
-            onChange={() => handleCollectionToggle(collection.id)}
-          />
+          <label key={collection.id} className={styles.checkbox}>
+            <input
+              type="checkbox"
+              checked={selectedCollections.has(collection.id)}
+              onChange={() => handleCollectionToggle(collection.id)}
+            />
+            <span>
+              {collection.name} ({collection.modeCount} modes)
+            </span>
+          </label>
         ))}
       </div>
-      <Group>
-        <IconButton onClick={() => {}} size="large">
+      <div className={styles.actions}>
+        <button className={styles.iconButton} onClick={() => {}}>
           <AiFillBulb />
-        </IconButton>
-        <Button
-          fullWidth
-          size="large"
-          color="primary"
-          startIcon={<AiFillPlayCircle />}
-          signal="success"
+        </button>
+        <button
+          className={styles.exportButton}
           onClick={() => {
             emit('EXPORT_COLLECTIONS', Array.from(selectedCollections));
           }}
         >
+          <AiFillPlayCircle />
           Export
-        </Button>
-      </Group>
-    </Page>
+        </button>
+      </div>
+    </div>
   );
 }
 
