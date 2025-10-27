@@ -29,9 +29,20 @@
   },
   "figma-plugin": {
     "editorType": [
-      "figma"
+      "figma",
+      "dev"
     ],
-    "id": "react-editor",
+    "capabilities": [
+      "inspect"
+    ],
+    "networkAccess": {
+      "allowedDomains": [
+        "https://fonts.googleapis.com",
+        "https://fonts.gstatic.com"
+      ]
+    },
+    "documentAccess": "dynamic-page",
+    "id": "1564673218146537606",
     "name": "Token Exporter",
     "main": "src/main.ts",
     "ui": "src/ui.tsx"
