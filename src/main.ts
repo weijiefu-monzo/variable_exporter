@@ -203,12 +203,18 @@ function buildTokenWithModes(
   // Gather values per mode
   const perMode: Record<string, any> = {};
   let hasAnyModeValue = false;
+  let tokenType: DTCGToken['$type'] | null = null; // Capture type from first coerceTypeAndUnits call for FLOAT
 
   for (const m of collection.modes) {
     const raw = variable.valuesByMode[m.modeId];
     if (raw !== undefined) {
       const converted = convertVariableValue(variable, raw, allVariables);
-      perMode[m.name] = coerceTypeAndUnits(variable, converted).value; // store raw value; type set later
+      const coerced = coerceTypeAndUnits(variable, converted);
+      // Capture type from first call for FLOAT types (type depends on scopes, not value)
+      if (tokenType === null && variable.resolvedType === 'FLOAT') {
+        tokenType = coerced.type;
+      }
+      perMode[m.name] = coerced.value;
       hasAnyModeValue = true;
     }
   }
@@ -219,7 +225,12 @@ function buildTokenWithModes(
       const raw = variable.valuesByMode[m.modeId];
       if (raw !== undefined) {
         const converted = convertVariableValue(variable, raw, allVariables);
-        perMode[m.name] = coerceTypeAndUnits(variable, converted).value;
+        const coerced = coerceTypeAndUnits(variable, converted);
+        // Capture type from first call for FLOAT types
+        if (tokenType === null && variable.resolvedType === 'FLOAT') {
+          tokenType = coerced.type;
+        }
+        perMode[m.name] = coerced.value;
         hasAnyModeValue = true;
         break;
       }
@@ -228,7 +239,13 @@ function buildTokenWithModes(
 
   // Decide if modes actually differ
   const unique = new Set(Object.values(perMode).map((v) => JSON.stringify(v)));
-  const token: DTCGToken = { $type: mapDtcgType(variable.resolvedType) };
+
+  // For FLOAT types, use the type from coerceTypeAndUnits (considers scopes)
+  // For other types, use mapDtcgType
+  const finalTokenType =
+    tokenType !== null ? tokenType : mapDtcgType(variable.resolvedType);
+
+  const token: DTCGToken = { $type: finalTokenType };
 
   if (unique.size > 1) {
     token.$modes = perMode;
@@ -341,16 +358,28 @@ function coerceTypeAndUnits(
   variable: Variable,
   raw: any
 ): { type: DTCGToken['$type']; value: any } {
+  console.log(variable, variable.name, variable.scopes.length);
   switch (variable.resolvedType) {
     case 'FLOAT': {
+      // Check if value is an alias (reference to another token)
+      if (typeof raw === 'string' && raw.startsWith('{') && raw.endsWith('}')) {
+        // For aliases, show the referenced value as-is (e.g., "{spacing.small}")
+        // Determine type based on scopes
+        return variable.scopes.length === 0
+          ? { type: 'number', value: raw }
+          : { type: 'dimension', value: raw };
+      }
       // if already a string with unit, keep it; else append "px"
       if (typeof raw === 'string' && /[a-z%]+$/i.test(raw)) {
         return { type: 'dimension', value: raw };
       }
       const n = typeof raw === 'number' ? raw : Number(raw);
-      return Number.isFinite(n)
-        ? { type: 'dimension', value: `${n}px` }
-        : { type: 'number', value: raw };
+      // If scope length is 0, set type to number with raw number value
+      if (variable.scopes.length === 0) {
+        return { type: 'number', value: n };
+      }
+      // If scope length is more than 0, set type to dimension and append "px"
+      return { type: 'dimension', value: `${n}px` };
     }
     case 'BOOLEAN':
       return { type: 'boolean', value: Boolean(raw) };
